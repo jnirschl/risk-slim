@@ -183,11 +183,7 @@ def run_standard_cpa(cpx,
     if isinstance(loss_idx, list) and len(loss_idx) == 1:
         loss_idx = loss_idx[0]
 
-    if settings['type'] == 'cvx':
-        vtypes = 'C'
-    else:
-        vtypes = cpx.variables.get_types(rho_idx)
-
+    vtypes = 'C' if settings['type'] == 'cvx' else cpx.variables.get_types(rho_idx)
     if len(alpha_idx) > 0:
         get_alpha = lambda: np.array(cpx.solution.get_values(alpha_idx))
     else:
@@ -359,7 +355,7 @@ def run_standard_cpa(cpx,
 
     #create solution pool
     pool = SolutionPool(P)
-    if len(objvals) > 0:
+    if objvals:
         pool.add(objvals, solutions)
 
     return stats, cuts, pool

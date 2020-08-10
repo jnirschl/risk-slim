@@ -253,7 +253,7 @@ def create_risk_slim(coef_set, input):
         print_from_function("dropped L0 indicator for '(Intercept)'")
         constraints_to_drop.extend(["L0_norm_ub_" + str(intercept_idx), "L0_norm_lb_" + str(intercept_idx)])
 
-    if len(constraints_to_drop) > 0:
+    if constraints_to_drop:
         constraints_to_drop = list(set(constraints_to_drop))
         cons.delete(constraints_to_drop)
 
@@ -270,8 +270,11 @@ def create_risk_slim(coef_set, input):
         'alpha': vars.get_indices(alpha_names),
         'L0_reg_ind': L0_reg_ind,
         'C_0_rho': C_0_rho,
-        'C_0_alpha': mip.objective.get_linear(alpha_names) if len(alpha_names) > 0 else [],
-        }
+        'C_0_alpha': mip.objective.get_linear(alpha_names)
+        if alpha_names
+        else [],
+    }
+
 
     if include_auxillary_variable_for_objval:
         indices.update({

@@ -62,7 +62,7 @@ def setup_parser():
 
     def is_negative_one_or_positive_integer(value):
         parsed_value = int(value)
-        if not (parsed_value == -1 or parsed_value >= 1):
+        if parsed_value != -1 and parsed_value < 1:
             raise argparse.ArgumentTypeError("%s is an invalid value (must be -1 or >=1)" % value)
         else:
             return parsed_value

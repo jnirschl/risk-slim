@@ -6,14 +6,18 @@ def chained_updates(bounds, C_0_nnz, new_objval_at_feasible = None, new_objval_a
     new_bounds = dict(bounds)
 
     # update objval_min using new_value (only done once)
-    if new_objval_at_relaxation is not None:
-        if new_bounds['objval_min'] < new_objval_at_relaxation:
-            new_bounds['objval_min'] = new_objval_at_relaxation
+    if (
+        new_objval_at_relaxation is not None
+        and new_bounds['objval_min'] < new_objval_at_relaxation
+    ):
+        new_bounds['objval_min'] = new_objval_at_relaxation
 
     # update objval_max using new_value (only done once)
-    if new_objval_at_feasible is not None:
-        if new_bounds['objval_max'] > new_objval_at_feasible:
-            new_bounds['objval_max'] = new_objval_at_feasible
+    if (
+        new_objval_at_feasible is not None
+        and new_bounds['objval_max'] > new_objval_at_feasible
+    ):
+        new_bounds['objval_max'] = new_objval_at_feasible
 
     # we have already converged
     if new_bounds['objval_max'] <= new_bounds['objval_min']:
@@ -82,14 +86,18 @@ def chained_updates_for_lp(bounds, C_0_nnz, new_objval_at_feasible = None, new_o
     new_bounds = dict(bounds)
 
     # update objval_min using new_value (only done once)
-    if new_objval_at_relaxation is not None:
-        if new_bounds['objval_min'] < new_objval_at_relaxation:
-            new_bounds['objval_min'] = new_objval_at_relaxation
+    if (
+        new_objval_at_relaxation is not None
+        and new_bounds['objval_min'] < new_objval_at_relaxation
+    ):
+        new_bounds['objval_min'] = new_objval_at_relaxation
 
     # update objval_max using new_value (only done once)
-    if new_objval_at_feasible is not None:
-        if new_bounds['objval_max'] > new_objval_at_feasible:
-            new_bounds['objval_max'] = new_objval_at_feasible
+    if (
+        new_objval_at_feasible is not None
+        and new_bounds['objval_max'] > new_objval_at_feasible
+    ):
+        new_bounds['objval_max'] = new_objval_at_feasible
 
     if new_bounds['objval_max'] <= new_bounds['objval_min']:
         new_bounds['objval_max'] = max(new_bounds['objval_max'], new_bounds['objval_min'])

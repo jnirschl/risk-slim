@@ -49,11 +49,11 @@ class SolutionPool(object):
     @staticmethod
     def solution_string(solution, float_fmt = '%1.3f'):
         solution_string = ''
-        for j in range(len(solution)):
-            if SolutionPool.is_integral(solution[j]):
-                solution_string += ' ' + str(int(solution[j]))
+        for item in solution:
+            if SolutionPool.is_integral(item):
+                solution_string += ' ' + str(int(item))
             else:
-                solution_string += ((' ' + float_fmt) % solution[j])
+                solution_string += (' ' + float_fmt) % item
         return solution_string
 
 
@@ -297,11 +297,11 @@ class SolutionQueue(object):
     @staticmethod
     def solution_string(solution):
         solution_string = ''
-        for j in range(len(solution)):
-            if SolutionPool.is_integral(solution[j]):
-                solution_string += ' ' + str(int(solution[j]))
+        for item in solution:
+            if SolutionPool.is_integral(item):
+                solution_string += ' ' + str(int(item))
             else:
-                solution_string += (' %1.4f' % solution[j])
+                solution_string += ' %1.4f' % item
         return solution_string
 
     def __repr__(self):

@@ -264,9 +264,7 @@ def get_conservative_offset(data, coef_set, max_L0_value = None):
                                     L0_reg_ind = L0_reg_ind,
                                     L0_max = max_L0_value)
 
-    # get max # of non-zero coefficients given model size limit
-    conservative_offset = max(abs(s_min), abs(s_max)) + 1
-    return conservative_offset
+    return max(abs(s_min), abs(s_max)) + 1
 
 
 def get_score_bounds(Z_min, Z_max, rho_lb, rho_ub, L0_reg_ind = None, L0_max = None):

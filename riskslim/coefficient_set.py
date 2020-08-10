@@ -143,8 +143,7 @@ class CoefficientElement(object):
              '%s: %1.2g' % ('c0', self._c0),
              '%s: %1.0f' % ('sign', self.sign),
              '%s: %s' % ('vtype', self._vtype)]
-        t = '\n' + '\n'.join(s) + '\n'
-        return t
+        return '\n' + '\n'.join(s) + '\n'
 
 
 class CoefficientSet(object):
@@ -338,8 +337,8 @@ class CoefficientSet(object):
         if self._correct_flag:
 
             for name in self._variable_names:
-                e = self._coef_elements[name]
                 if name in {'Intercept', '(Intercept)', 'intercept', '(intercept)'}:
+                    e = self._coef_elements[name]
                     if e.c0 > 0 or np.isnan(e.c0):
                         if self._print_flag:
                             print("setting c0 = 0.0 to ensure that intercept is not penalized")
