@@ -3,14 +3,13 @@ import numpy as np
 from cplex.callbacks import HeuristicCallback, LazyConstraintCallback
 from cplex.exceptions import CplexError
 from .bound_tightening import chained_updates
-from .default_settings import DEFAULT_LCPA_SETTINGS
-from .helper_functions import cast_to_integer, is_integer, print_log, validate_settings
+from .defaults import DEFAULT_LCPA_SETTINGS
+from .helper_functions import print_log, validate_settings
 from .heuristics import discrete_descent, sequential_rounding
 from .initialization import initialize_lattice_cpa
 from .mip import add_mip_starts, convert_to_risk_slim_cplex_solution, create_risk_slim, set_cplex_mip_parameters
 from .setup_functions import get_loss_bounds, setup_loss_functions, setup_objective_functions, setup_penalty_parameters
-from .solution_classes import SolutionPool, SolutionQueue
-from .debug import ipsh
+from .solution_pool import SolutionPool, FastSolutionPool
 
 DEFAULT_BOUNDS = {
     'objval_min': 0.0,
@@ -22,6 +21,7 @@ DEFAULT_BOUNDS = {
     }
 
 
+# LATTICE CPA FUNCTIONS
 def run_lattice_cpa(data, constraints, settings = DEFAULT_LCPA_SETTINGS):
     """
 
@@ -282,8 +282,8 @@ def finish_lattice_cpa(data, constraints, mip_objects, settings = DEFAULT_LCPA_S
         'n_bound_updates_objval_max': 0,
         }
 
-    lcpa_cut_queue = SolutionQueue(P)
-    lcpa_polish_queue = SolutionQueue(P)
+    lcpa_cut_queue = FastSolutionPool(P)
+    lcpa_polish_queue = FastSolutionPool(P)
 
     heuristic_flag = lcpa_settings['round_flag'] or lcpa_settings['polish_flag']
 
@@ -389,6 +389,7 @@ def finish_lattice_cpa(data, constraints, mip_objects, settings = DEFAULT_LCPA_S
     return model_info, mip_info, lcpa_info
 
 
+# CALLBACK FUNCTIONS
 class LossCallback(LazyConstraintCallback):
     """
     This callback has to be initialized after construnction with initialize().
@@ -444,18 +445,18 @@ class LossCallback(LazyConstraintCallback):
         # setup pointer to cut_queue to receive cuts from PolishAndRoundCallback
         if self.settings['add_cuts_at_heuristic_solutions']:
             if cut_queue is None:
-                self.cut_queue = SolutionQueue(len(self.rho_idx))
+                self.cut_queue = FastSolutionPool(len(self.rho_idx))
             else:
-                assert isinstance(cut_queue, SolutionQueue)
+                assert isinstance(cut_queue, FastSolutionPool)
                 self.cut_queue = cut_queue
 
 
         # setup pointer to polish_queue to send integer solutions to PolishAndRoundCallback
         if self.settings['polish_flag']:
             if polish_queue is None:
-                self.polish_queue = SolutionQueue(len(self.rho_idx))
+                self.polish_queue = FastSolutionPool(len(self.rho_idx))
             else:
-                assert isinstance(polish_queue, SolutionQueue)
+                assert isinstance(polish_queue, FastSolutionPool)
                 self.polish_queue = polish_queue
 
         # setup indices for update bounds
@@ -480,7 +481,6 @@ class LossCallback(LazyConstraintCallback):
 
     def update_bounds(self):
 
-        #print_log('in update bounds')
         bounds = chained_updates(bounds = self.control['bounds'],
                                  C_0_nnz = self.C_0_nnz,
                                  new_objval_at_relaxation = self.control['lowerbound'],
@@ -618,8 +618,8 @@ class PolishAndRoundCallback(HeuristicCallback):
         assert isinstance(indices, dict)
         assert isinstance(control, dict)
         assert isinstance(settings, dict)
-        assert isinstance(cut_queue, SolutionQueue)
-        assert isinstance(polish_queue, SolutionQueue)
+        assert isinstance(cut_queue, FastSolutionPool)
+        assert isinstance(polish_queue, FastSolutionPool)
         assert callable(get_objval)
         assert callable(get_L0_norm)
         assert callable(is_feasible)
@@ -777,7 +777,7 @@ class PolishAndRoundCallback(HeuristicCallback):
             self.polish_queue.filter_sort_unique(max_objval = polishing_cutoff)
 
             if len(self.polish_queue) > 0:
-                polished_queue = SolutionQueue(self.polish_queue.P)
+                polished_queue = FastSolutionPool(self.polish_queue.P)
                 polish_time = 0
                 n_polished = 0
                 for objval, solution in zip(self.polish_queue.objvals, self.polish_queue.solutions):
@@ -824,3 +824,36 @@ class PolishAndRoundCallback(HeuristicCallback):
         self.control['total_heuristic_callback_time'] += time.time() - callback_start_time
         #print_log('left heuristic callback')
         return
+
+
+# DATA CONVERSION
+def is_integer(x):
+    """
+    checks if numpy array is an integer vector
+
+    Parameters
+    ----------
+    x
+
+    Returns
+    -------
+
+    """
+    return np.array_equal(x, np.require(x, dtype=np.int_))
+
+
+def cast_to_integer(x):
+    """
+    casts numpy array to integer vector
+
+    Parameters
+    ----------
+    x
+
+    Returns
+    -------
+
+    """
+    original_type = x.dtype
+    return np.require(np.require(x, dtype=np.int_), dtype=original_type)
+
