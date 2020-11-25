@@ -27,7 +27,7 @@ def generate_integer_model(n_cols = 20, rho_ub = 100, rho_lb = -100, sparse_pct 
     rho = np.random.randint(low=rho_lb, high=rho_ub, size=n_cols)
     rho = np.require(rho, dtype=Z.dtype, requirements=['F'])
     nnz_count = int(sparse_pct * np.floor(n_cols / 2))
-    set_to_zero = np.random.choice(range(0, n_cols), size=nnz_count, replace=False)
+    set_to_zero = np.random.choice(range(n_cols), size=nnz_count, replace=False)
     rho[set_to_zero] = 0.0
     return rho
 

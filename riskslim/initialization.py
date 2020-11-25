@@ -354,7 +354,7 @@ def run_standard_cpa(cpx,
 
     #create solution pool
     pool = SolutionPool(P)
-    if len(objvals) > 0:
+    if objvals:
         pool.add(objvals, solutions)
 
     return stats, cuts, pool

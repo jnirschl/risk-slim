@@ -264,8 +264,8 @@ class CoefficientSet(object):
         if self._correct_flag:
 
             for name in self._variable_names:
-                e = self._coef_elements[name]
                 if name in {'Intercept', '(Intercept)', 'intercept', '(intercept)'}:
+                    e = self._coef_elements[name]
                     if e.c0 > 0 or np.isnan(e.c0):
                         if self._print_flag:
                             print("setting c0_value = 0.0 for %s to ensure that intercept is not penalized" % name)
@@ -446,8 +446,7 @@ class _CoefficientElement(object):
              '%s: %1.2g' % ('c0', self._c0),
              '%s: %1.0f' % ('sign', self.sign),
              '%s: %s' % ('vtype', self._vtype)]
-        t = '\n' + '\n'.join(s) + '\n'
-        return t
+        return '\n' + '\n'.join(s) + '\n'
 
 
 def get_score_bounds(Z_min, Z_max, rho_lb, rho_ub, L0_reg_ind = None, L0_max = None):

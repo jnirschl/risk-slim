@@ -161,8 +161,13 @@ def check_data(data):
     assert N > 0, 'X matrix must have at least 1 row'
     assert P > 0, 'X matrix must have at least 1 column'
     assert len(Y) == N, 'dimension mismatch. Y must contain as many entries as X. Need len(Y) = N.'
-    assert len(list(set(data['variable_names']))) == len(data['variable_names']), 'variable_names is not unique'
-    assert len(data['variable_names']) == P, 'len(variable_names) should be same as # of cols in X'
+    assert len(list(set(variable_names))) == len(
+        variable_names
+    ), 'variable_names is not unique'
+
+    assert (
+        len(variable_names) == P
+    ), 'len(variable_names) should be same as # of cols in X'
 
     # feature matrix
     assert np.all(~np.isnan(X)), 'X has nan entries'
@@ -232,8 +237,19 @@ def print_model(rho, data,  show_omitted_variables = False):
     n_variable_rows = len(rho_values)
     total_string = "ADD POINTS FROM ROWS %d to %d" % (1, n_variable_rows)
 
-    max_name_col_length = max(len(predict_string), len(total_string), max([len(s) for s in rho_names])) + 2
-    max_value_col_length = max(7, max([len(s) for s in rho_values_string]) + len("points")) + 2
+    max_name_col_length = (
+        max(
+            len(predict_string),
+            len(total_string),
+            max(len(s) for s in rho_names),
+        )
+        + 2
+    )
+
+    max_value_col_length = (
+        max(7, max(len(s) for s in rho_values_string) + len("points")) + 2
+    )
+
 
     m = pt.PrettyTable()
     m.field_names = ["Variable", "Points", "Tally"]
@@ -324,7 +340,7 @@ def get_or_set_default(settings, setting_name, default_value, type_check = False
 
         settings[setting_name] = default_value
 
-    elif setting_name in settings and type_check:
+    elif type_check:
 
         default_type = type(default_value)
         user_type = type(settings[setting_name])

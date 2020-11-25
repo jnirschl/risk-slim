@@ -563,21 +563,25 @@ class LossCallback(LazyConstraintCallback):
                 self.polish_queue.add(current_upperbound, rho)
 
         # add cutting planes at other integer feasible solutions in cut_queue
-        if self.settings['add_cuts_at_heuristic_solutions']:
-            if len(self.cut_queue) > 0:
-                self.cut_queue.filter_sort_unique()
-                cut_start_time = time.time()
-                for cut_rho in self.cut_queue.solutions:
-                    self.add_loss_cut(cut_rho)
-                cut_time += time.time() - cut_start_time
-                cuts_added += len(self.cut_queue)
-                self.cut_queue.clear()
+        if (
+            self.settings['add_cuts_at_heuristic_solutions']
+            and len(self.cut_queue) > 0
+        ):
+            self.cut_queue.filter_sort_unique()
+            cut_start_time = time.time()
+            for cut_rho in self.cut_queue.solutions:
+                self.add_loss_cut(cut_rho)
+            cut_time += time.time() - cut_start_time
+            cuts_added += len(self.cut_queue)
+            self.cut_queue.clear()
 
         # update bounds
-        if self.settings['chained_updates_flag']:
-            if (self.control['lowerbound'] > self.control['bounds']['objval_min']) or (self.control['upperbound'] < self.control['bounds']['objval_max']):
-                self.control['n_update_bounds_calls'] += 1
-                self.update_bounds()
+        if self.settings['chained_updates_flag'] and (
+            (self.control['lowerbound'] > self.control['bounds']['objval_min'])
+            or (self.control['upperbound'] < self.control['bounds']['objval_max'])
+        ):
+            self.control['n_update_bounds_calls'] += 1
+            self.update_bounds()
 
         # record metrics at end
         self.control['n_cuts'] += cuts_added
